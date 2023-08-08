@@ -9,7 +9,7 @@ env:
   APP_NAME: wordpress-application
   S3_BUCKET: elasticbeanstalk-eu-north-1-991009956481
   AWS_REGION: eu-north-1
-  PIPELINE_ID: ${{vars.GITHUB_RUN_ID}-${{vars.GITHUB_RUN_NUMBER}}
+  PIPELINE_ID: ${{vars.GITHUB_RUN_ID}}-${{vars.GITHUB_RUN_NUMBER}}
 
 jobs:
   build:
