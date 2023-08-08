@@ -10,7 +10,7 @@ env:
   S3_BUCKET: elasticbeanstalk-eu-north-1-991009956481
   AWS_REGION: eu-north-1
   PIPELINE_ID: ${{vars.GITHUB_RUN_ID}}
-  AWS_VERSION_LABEL: ${{env.APP_NAME}}-{{env.PIPELINE_ID}}
+  AWS_VERSION_LABEL: APP_NAME-{{env.PIPELINE_ID}}
 
 jobs:
   build:
@@ -44,7 +44,7 @@ jobs:
         echo AWS_VERSION_LABEL
         echo "Creating bundle"
         zip -r ${{env.APP_NAME}}.zip ./
-        S3_KEY="$AWS_VERSION_LABEL.zip"
+        S3_KEY="AWS_VERSION_LABEL.zip"
 
         echo "Uploading source bundle to S3"
         aws s3 cp ${{env.APP_NAME}}.zip s3://${{env.S3_BUCKET}}/${S3_KEY} --region ${{env.AWS_REGION}}
