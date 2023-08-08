@@ -56,6 +56,10 @@ jobs:
   deploy_aws:
     needs: [build]
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v2
 
