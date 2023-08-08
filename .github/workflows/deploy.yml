@@ -9,7 +9,8 @@ env:
   APP_NAME: wordpress-application
   S3_BUCKET: elasticbeanstalk-eu-north-1-991009956481
   AWS_REGION: eu-north-1
-  PIPELINE_ID: ${{vars.GITHUB_RUN_ID}}-${{vars.GITHUB_RUN_NUMBER}}
+  PIPELINE_ID: ${{vars.GITHUB_RUN_ID}}
+  AWS_VERSION_LABEL: ${{env.APP_NAME}}-{{env.PIPELINE_ID}}
 
 jobs:
   build:
@@ -40,8 +41,7 @@ jobs:
 
     - name: Zip code and Upload to S3
       run: |
-
-        AWS_VERSION_LABEL=${{env.APP_NAME}}-{{env.PIPELINE_ID}}
+        echo AWS_VERSION_LABEL
         echo "Creating bundle"
         zip -r ${{env.APP_NAME}}.zip ./
         S3_KEY="$AWS_VERSION_LABEL.zip"
