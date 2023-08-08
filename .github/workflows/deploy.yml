@@ -27,7 +27,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::991009956481:role/GitHubAction-AssumeRoleWithAction
-        aws-region: us-east-1
+        aws-region: eu-north-1
 
     - name: Install Python 3.9
       uses: actions/setup-python@v2
@@ -53,6 +53,7 @@ jobs:
 
           echo "Creating Elastic Beanstalk version"
           aws elasticbeanstalk create-application-version --application-name ${{env.APP_NAME}} --version-label $AWS_VERSION_LABEL --region ${{env.AWS_REGION}} --source-bundle S3Bucket=${{env.S3_BUCKET}},S3Key=${S3_KEY} --auto-create-application
+
   deploy_aws:
     needs: [build]
     runs-on: ubuntu-latest
