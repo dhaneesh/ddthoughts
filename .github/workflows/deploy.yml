@@ -1,0 +1,57 @@
+name: Deploy
+on:
+  push:
+defaults:
+  run:
+    shell: bash
+env:
+  REPO_NAME: ${{github.event.repository.name }}
+  APP_NAME: wordpress-application
+  S3_BUCKET: elasticbeanstalk-eu-north-1-991009956481
+  AWS_REGION: eu-north-1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    timeout-minutes: 60
+    steps:
+    - name: "Checkout"
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::991009956481:role/GitHubAction-AssumeRoleWithAction
+        aws-region: us-east-1
+
+    - name: Install Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install AWSCLI
+      run: |
+        python -m pip install --upgrade pip
+        pip install awscli
+
+    - name: Zip code and Upload to S3
+      run: |
+
+        AWS_VERSION_LABEL=${{env.APP_NAME}}-{{env.PIPELINE_ID}}
+        echo "Creating bundle"
+        zip -r ${{env.APP_NAME}}.zip ./
+        S3_KEY="$AWS_VERSION_LABEL.zip"
+
+        echo "Uploading source bundle to S3"
+        aws s3 cp ${{env.APP_NAME}}.zip s3://${{env.S3_BUCKET}}/${S3_KEY} --region ${{env.AWS_REGION}}
+
+        echo "Create elastis beanstalk version"
+        aws elasticbeanstalk create-application-version \
+        --aplication-name ${{env.APP_NAME}} \
+        --version-label $AWS_VERSION_LABEL \
+        --region AWS_REGION \
+        --source-bundle S3Bucket-${{env.S3_BUCKET}},S3Key=${S#_KEY} \
+        --auto-create-application
