@@ -9,8 +9,8 @@ env:
   APP_NAME: wordpress-application
   S3_BUCKET: elasticbeanstalk-eu-north-1-991009956481
   AWS_REGION: eu-north-1
-  PIPELINE_ID: ${{vars.GITHUB_RUN_ID}}
-  AWS_VERSION_LABEL: APP_NAME-{{env.PIPELINE_ID}}
+  AWS_PLATFORM: php
+  PIPELINE_ID: ${GITHUB_RUN_ID}-${GITHUB_RUN_NUMBER}
 
 jobs:
   build:
@@ -41,20 +41,15 @@ jobs:
 
     - name: Zip code and Upload to S3
       run: |
-        echo AWS_VERSION_LABEL
-        echo "Creating bundle"
-        zip -r ${{env.APP_NAME}}.zip ./
-        S3_KEY="AWS_VERSION_LABEL.zip"
 
-        echo "Uploading source bundle to S3"
-        aws s3 cp ${{env.APP_NAME}}.zip s3://${{env.S3_BUCKET}}/${S3_KEY} --region ${{env.AWS_REGION}}
+          AWS_VERSION_LABEL=${{env.APP_NAME}}-${{env.PIPELINE_ID}}
 
-    - name: Create elasticbeanstalk version
-      run: |
-        echo "Create elasticbeanstalk version"
-        aws elasticbeanstalk create-application-version \
-        --application-name ${{env.APP_NAME}} \
-        --version-label $AWS_VERSION_LABEL \
-        --region AWS_REGION \
-        --source-bundle S3Bucket-${{env.S3_BUCKET}},S3Key=${S3_KEY} \
-        --auto-create-application
+          echo "Creating Source Bundle"
+          zip -r ${{env.APP_NAME}}.zip ./
+          S3_KEY="$AWS_VERSION_LABEL.zip"
+
+          echo "Uploading Source Bundle to S3"
+          aws s3 cp ${{env.APP_NAME}}.zip s3://${{env.S3_BUCKET}}/${S3_KEY} --region ${{env.AWS_REGION}}
+
+          echo "Creating Elastic Beanstalk version"
+          aws elasticbeanstalk create-application-version --application-name ${{env.APP_NAME}} --version-label $AWS_VERSION_LABEL --region ${{env.AWS_REGION}} --source-bundle S3Bucket=${{env.S3_BUCKET}},S3Key=${S3_KEY} --auto-create-application
