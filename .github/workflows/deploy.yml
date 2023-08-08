@@ -9,6 +9,7 @@ env:
   APP_NAME: wordpress-application
   S3_BUCKET: elasticbeanstalk-eu-north-1-991009956481
   AWS_REGION: eu-north-1
+  PIPELINE_ID: ${GITHUB_RUN_ID}-${GITHUB_RUN_NUMBER}
 
 jobs:
   build:
@@ -50,7 +51,7 @@ jobs:
 
         echo "Create elastis beanstalk version"
         aws elasticbeanstalk create-application-version \
-        --aplication-name ${{env.APP_NAME}} \
+        --application-name ${{env.APP_NAME}} \
         --version-label $AWS_VERSION_LABEL \
         --region AWS_REGION \
         --source-bundle S3Bucket-${{env.S3_BUCKET}},S3Key=${S#_KEY} \
